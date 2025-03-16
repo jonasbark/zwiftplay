@@ -12,7 +12,7 @@ kotlin = "1.9.10"
 lifecycle-runtime-ktx = "2.6.2"
 material = "1.10.0"
 # @keep
-min-sdk = "30"
+min-sdk = "29"
 protobuf = "3.24.4"
 # @keep
 protobuf-javalite = "3.24.4"
