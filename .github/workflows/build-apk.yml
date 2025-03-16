@@ -1,0 +1,44 @@
+name: Android Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Runs only on version tags like v1.0, v2.1, etc.
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu' # Alternative: 'temurin'
+          java-version: '17'  # Use the required Java version
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant execute permission to Gradle
+        run: chmod +x gradlew
+
+      - name: Build APK
+        run: ./gradlew assembleRelease
+
+      - name: Find APK Path
+        id: apk_path
+        run: echo "apk=$(find . -name '*.apk' | head -n 1)" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: ${{ env.apk }}
