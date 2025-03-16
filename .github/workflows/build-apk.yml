@@ -27,7 +27,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build APK
-        run: ./gradlew app:assembleRelease
+        run: ./gradlew app:assemble
 
       - name: Create GitHub Release
         id: create_release
