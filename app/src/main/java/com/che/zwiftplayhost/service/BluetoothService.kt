@@ -1,6 +1,7 @@
 package com.che.zwiftplayhost.service
 
 import android.Manifest
+import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -21,13 +22,13 @@ import androidx.core.util.isEmpty
 import com.che.zap.device.DeviceType
 import com.che.zap.device.KickrCore
 import com.che.zap.device.common.ZapConstants.BC1
-import com.che.zap.device.common.ZapConstants.ZWIFT_MANUFACTURER_ID
 import com.che.zap.device.common.ZapConstants.RC1_LEFT_SIDE
 import com.che.zap.device.common.ZapConstants.RC1_RIGHT_SIDE
+import com.che.zap.device.common.ZapConstants.ZWIFT_MANUFACTURER_ID
+import com.che.zap.utils.Logger
 import com.che.zwiftplayhost.R
 import com.che.zwiftplayhost.ble.BleControllerScanner
 import com.che.zwiftplayhost.ble.ZwiftAccessoryBleManager
-import com.che.zap.utils.Logger
 import com.che.zwiftplayhost.utils.NotificationHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -60,6 +61,16 @@ class BluetoothService : Service() {
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(resources.getString(R.string.service_notification_channel_name))
             .setContentText(resources.getString(R.string.service_notification_channel_summary))
+            // add button to stop app
+            .addAction(
+                com.google.android.material.R.drawable.mtrl_ic_cancel,
+                "Stop",
+                PendingIntent.getBroadcast(
+                    this, 0, Intent(this, StopAppReceiver::class.java).apply {
+                        action = "STOP_APP"
+                    }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            )
             .setAutoCancel(true)
 
         notification.foregroundServiceBehavior = FOREGROUND_SERVICE_IMMEDIATE

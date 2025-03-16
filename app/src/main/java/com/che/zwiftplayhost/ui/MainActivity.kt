@@ -6,6 +6,7 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.IBinder
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,14 +17,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.che.common.NotificationUtils
 import com.che.common.isServiceRunning
 import com.che.zap.device.DeviceType
-import com.che.zap.device.common.ZapConstants.RC1_LEFT_SIDE
-import com.che.zap.device.common.ZapConstants.RC1_RIGHT_SIDE
+import com.che.zap.utils.Logger
+import com.che.zwiftplayhost.ble.BlePermissions
 import com.che.zwiftplayhost.ble.ZwiftAccessoryBleManager
 import com.che.zwiftplayhost.databinding.ActivityMainBinding
 import com.che.zwiftplayhost.databinding.RecyclerItemDebugLineBinding
 import com.che.zwiftplayhost.service.BluetoothService
-import com.che.zap.utils.Logger
-import com.che.zwiftplayhost.ble.BlePermissions
 import com.che.zwiftplayhost.service.BluetoothService.Companion.BATTERY_LEVEL_UPDATE
 import com.che.zwiftplayhost.service.BluetoothService.Companion.ON_INITIALISED_UPDATE
 import kotlinx.coroutines.Dispatchers
@@ -44,10 +43,24 @@ class MainActivity : AppCompatActivity() {
     private var gattServiceData: BluetoothService.DataPlane? = null
     private val bleManagerUpdateNotifications = Channel<Pair<Int, ZwiftAccessoryBleManager>>()
 
+    private fun isAccessibilityServiceEnabled(): Boolean {
+        val enabledServices: String? = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        return enabledServices != null && enabledServices.contains(packageName)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // check if accessibility permission is granted, if so hide the button
+        if (isAccessibilityServiceEnabled()) {
+            binding.buttonAccessibility.visibility = View.GONE
+        }
+
+        binding.buttonAccessibility.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
 
         val recyclerViewDebug = binding.recyclerViewDebug
         recyclerViewDebug.layoutManager = LinearLayoutManager(this)
@@ -93,6 +106,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        // check if accessibility permission is granted, if so hide the button
+        if (isAccessibilityServiceEnabled()) {
+            binding.buttonAccessibility.visibility = View.GONE
+        }
 
         // We need runtime permissions for anything with BLE. Just simply prompt for this on resume of activity.
         if (!BlePermissions.hasRequiredPermissions(this))
