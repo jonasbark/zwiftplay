@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-  paths:
-    - '.github/workflows/build-apk.yml'
-    - 'app/**'
-    - 'commonlibrary/**'
-    - 'zaplibrary/**'
+    paths:
+      - '.github/workflows/build-apk.yml'
+      - 'app/**'
+      - 'commonlibrary/**'
+      - 'zaplibrary/**'
 
 jobs:
   build:
