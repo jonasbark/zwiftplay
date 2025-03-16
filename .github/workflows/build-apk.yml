@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  paths:
+    - '.github/workflows/build-apk.yml'
+    - 'app/**'
+    - 'commonlibrary/**'
+    - 'zaplibrary/**'
 
 jobs:
   build:
@@ -17,8 +22,9 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu' # Alternative: 'temurin'
-          java-version: '17'  # Use the required Java version
+          distribution: 'zulu'
+          java-version: '17'
+          cache: gradle
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3

@@ -6,6 +6,8 @@ import android.accessibilityservice.GestureDescription.StrokeDescription
 import android.graphics.Path
 import android.graphics.Rect
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.ViewConfiguration
 import android.view.accessibility.AccessibilityEvent
@@ -15,6 +17,27 @@ import com.che.zap.utils.Logger
 class AccessibilityService : AccessibilityService() {
 
     private var currentPackageName: String? = null
+    private val handler = Handler(Looper.getMainLooper())
+    private var isMinusPressed = false
+    private var isPlusPressed = false
+
+    private val gearDecreaseRunnable = object : Runnable {
+        override fun run() {
+            if (isMinusPressed) {
+                performGearDecrease()
+                handler.postDelayed(this, 250)
+            }
+        }
+    }
+
+    private val gearIncreaseRunnable = object : Runnable {
+        override fun run() {
+            if (isPlusPressed) {
+                performGearIncrease()
+                handler.postDelayed(this, 250)
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -29,8 +52,26 @@ class AccessibilityService : AccessibilityService() {
     private val loggerListener = object : Logger.LogCallback {
         override fun newLogLine(line: String) {
             when (line) {
-                "Minus=Pressed " -> performGearDecrease()
-                "Plus=Pressed " -> performGearIncrease()
+                "Minus=Pressed " -> {
+                    if (!isMinusPressed) {
+                        isMinusPressed = true
+                        handler.post(gearDecreaseRunnable) // Start repeating task
+                    }
+                }
+                "Minus=Released " -> {
+                    isMinusPressed = false
+                    handler.removeCallbacks(gearDecreaseRunnable) // Stop repeating task
+                }
+                "Plus=Pressed " -> {
+                    if (!isPlusPressed) {
+                        isPlusPressed = true
+                        handler.post(gearIncreaseRunnable) // Start repeating task
+                    }
+                }
+                "Plus=Released " -> {
+                    isPlusPressed = false
+                    handler.removeCallbacks(gearIncreaseRunnable) // Stop repeating task
+                }
             }
         }
     }
@@ -55,6 +96,8 @@ class AccessibilityService : AccessibilityService() {
     private fun performGearIncrease() {
         val windowSize = getWindowSize()
 
+        Logger.d("ACTION: Increasing gear")
+
         when (currentPackageName) {
             MYWHOOSH_APP_PACKAGE -> simulateTap(windowSize.right * 0.98, windowSize.bottom * 0.94)
             TRAININGPEAKS_APP_PACKAGE -> simulateTap(windowSize.right * 0.98, windowSize.bottom * 0.94)
@@ -63,6 +106,8 @@ class AccessibilityService : AccessibilityService() {
 
     private fun performGearDecrease() {
         val windowSize = getWindowSize()
+
+        Logger.d("ACTION: Decreasing gear")
 
         when (currentPackageName) {
             MYWHOOSH_APP_PACKAGE -> simulateTap(windowSize.right * 0.80, windowSize.bottom * 0.94)
