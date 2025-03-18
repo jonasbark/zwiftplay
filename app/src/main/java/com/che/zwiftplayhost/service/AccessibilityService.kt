@@ -100,7 +100,7 @@ class AccessibilityService : AccessibilityService() {
 
         when (currentPackageName) {
             MYWHOOSH_APP_PACKAGE -> simulateTap(windowSize.right * 0.98, windowSize.bottom * 0.94)
-            TRAININGPEAKS_APP_PACKAGE -> simulateTap(windowSize.right * 0.98, windowSize.bottom * 0.94)
+            TRAININGPEAKS_APP_PACKAGE -> simulateTap(windowSize.centerX() * 1.32, windowSize.bottom * 0.74)
         }
     }
 
@@ -111,7 +111,7 @@ class AccessibilityService : AccessibilityService() {
 
         when (currentPackageName) {
             MYWHOOSH_APP_PACKAGE -> simulateTap(windowSize.right * 0.80, windowSize.bottom * 0.94)
-            TRAININGPEAKS_APP_PACKAGE -> simulateTap(windowSize.right * 0.80, windowSize.bottom * 0.94)
+            TRAININGPEAKS_APP_PACKAGE -> simulateTap(windowSize.centerX() * 1.15, windowSize.bottom * 0.74)
         }
     }
 
